@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.rooms.config.RoomsServiceConfiguration;
@@ -24,9 +25,14 @@ public class RoomController {
 	private RoomsServiceConfiguration configRooms;
 	
 	@GetMapping("rooms")
-	public List<Room> service(){
+	public List<Room> search(){
 		return (List<Room>)this.service.search();
 	}
+	
+	@GetMapping("rooms/{id}")
+	public List<Room> searchByHotelId(@PathVariable long id){
+		 return this.service.searchRoomByHotelId(id);
+	 }
 	
 	@GetMapping("/rooms/read/properties")
 	public String getPropertiesRooms() throws JsonProcessingException{

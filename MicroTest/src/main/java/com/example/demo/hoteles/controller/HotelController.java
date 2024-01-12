@@ -4,10 +4,12 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.hoteles.config.HotelsServiceConfiguration;
 import com.example.demo.hoteles.model.Hotel;
+import com.example.demo.hoteles.model.HotelRooms;
 import com.example.demo.hoteles.model.PropertiesHotels;
 import com.example.demo.hoteles.services.IHotelService;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -27,6 +29,11 @@ public class HotelController {
 	@GetMapping("hotels")
 	public List<Hotel> search(){
 		return (List<Hotel>)this.service.search();
+	}
+	
+	@GetMapping("hotels/{hotelId}")
+	public HotelRooms searchHotelId(@PathVariable long hotelId){
+		return this.service.searchHotelById(hotelId);
 	}
 	
 	@GetMapping("/hotels/read/properties")

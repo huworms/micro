@@ -7,5 +7,6 @@ import com.example.demo.rooms.model.Room;
 public interface IRoomService {
 	
 	List<Room> search();
+	List<Room> searchRoomByHotelId(long hotelId);
 
 }
