@@ -1,0 +1,95 @@
+
+services:
+
+  configserver:
+    image: huworms/configserver:latest
+    mem_limit: 800m
+    ports:
+      - "8085:8085"
+    networks:
+      - hugo-network	
+
+  eurekaserver:
+    image: huworms/eurekaserver:latest
+    mem_limit: 800m
+    ports:
+      - "8065:8065"
+    networks:
+      - hugo-network
+    depends_on:
+      - configserver
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+    environment:
+      SPRING_PROFILES_ACTIVE: default
+      SPRING_CONFIG_IMPORT: configserver:http://configserver:8085/
+  
+  hotels:
+    image: huworms/hotels:latest
+    mem_limit: 800m
+    ports:
+      - "8080:8080"
+    networks:
+      - hugo-network
+    depends_on:
+      - configserver
+      - eurekaserver
+    deploy:
+     restart_policy:
+       condition: on-failure
+       delay: 5s
+       max_attempts: 3
+       window: 120s
+    environment:
+       SPRING_PROFILES_ACTIVE: default
+       SPRING_CONFIG_IMPORT: configserver:http://configserver:8085/
+       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:8065/eureka/
+    
+  rooms:
+    image: huworms/microroom:latest
+    mem_limit: 800m
+    ports:
+      - "8081:8081"
+    networks:
+      - hugo-network
+    depends_on:
+      - configserver
+      - eurekaserver
+    deploy:
+     restart_policy:
+       condition: on-failure
+       delay: 5s
+       max_attempts: 3
+       window: 120s
+    environment:
+       SPRING_PROFILES_ACTIVE: default
+       SPRING_CONFIG_IMPORT: configserver:http://configserver:8085/
+       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:8065/eureka/
+    
+  reservations:
+    image: huworms/reservation:latest
+    mem_limit: 800m
+    ports:
+      - "8082:8082"
+    networks:
+      - hugo-network
+    depends_on:
+      - configserver
+      - eurekaserver
+    deploy:
+     restart_policy:
+       condition: on-failure
+       delay: 5s
+       max_attempts: 3
+       window: 120s
+    environment:
+       SPRING_PROFILES_ACTIVE: default
+       SPRING_CONFIG_IMPORT: configserver:http://configserver:8085/
+       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:8065/eureka/
+    
+networks:
+  hugo-network:

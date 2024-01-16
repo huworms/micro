@@ -15,6 +15,8 @@ import com.example.demo.hoteles.services.IHotelService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 	
 
 @RestController
@@ -32,6 +34,7 @@ public class HotelController {
 	}
 	
 	@GetMapping("hotels/{hotelId}")
+	@CircuitBreaker(name="searchHotelIdSupportCB")
 	public HotelRooms searchHotelId(@PathVariable long hotelId){
 		return this.service.searchHotelById(hotelId);
 	}
