@@ -2,6 +2,8 @@ package com.example.demo.hoteles.controller;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -22,6 +24,10 @@ import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 @RestController
 public class HotelController {
 
+	private static final Logger logger= LoggerFactory.getLogger(HotelController.class);
+
+	
+	
 	@Autowired
 	private IHotelService service;
 	
@@ -30,12 +36,14 @@ public class HotelController {
 	
 	@GetMapping("hotels")
 	public List<Hotel> search(){
+		logger.info("Inicio del metodo search");
 		return (List<Hotel>)this.service.search();
 	}
 	
 	@GetMapping("hotels/{hotelId}")
 	@CircuitBreaker(name="searchHotelIdSupportCB")
 	public HotelRooms searchHotelId(@PathVariable long hotelId){
+		logger.info("Inicio del metodo searh by ID");
 		return this.service.searchHotelById(hotelId);
 	}
 	
