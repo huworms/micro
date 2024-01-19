@@ -30,6 +30,7 @@ public class ReservationController {
 	
 	@GetMapping("reservation")
 	public List<Reservation> search(){
+		logger.info("Iniciando metodo de search");
 		return this.service.search();
 	}
 	
