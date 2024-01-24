@@ -1,13 +1,26 @@
 
 services:
 
+  zipkin:
+    image: openzipkin/zipkin
+    mem_limit: 800m
+    ports:
+      - "9411:9411"
+    networks:
+      - hugo-network
+
   configserver:
     image: huworms/configserver:latest
     mem_limit: 800m
     ports:
       - "8085:8085"
     networks:
-      - hugo-network	
+      - hugo-network
+    depends_on:
+      - zipkin
+    environment:
+      SPRING_PROFILES_ACTIVE: default
+      MANAGEMENT_ZIPKIN_TRACING_ENDPOINT: http://zipkin:9411/api/v2/spans	
 
   eurekaserver:
     image: huworms/eurekaserver:latest
@@ -27,6 +40,7 @@ services:
     environment:
       SPRING_PROFILES_ACTIVE: default
       SPRING_CONFIG_IMPORT: configserver:http://configserver:8085/
+      MANAGEMENT_ZIPKIN_TRACING_ENDPOINT: http://zipkin:9411/api/v2/spans
   
   hotels:
     image: huworms/hotels:latest
@@ -48,6 +62,7 @@ services:
        SPRING_PROFILES_ACTIVE: default
        SPRING_CONFIG_IMPORT: configserver:http://configserver:8085/
        EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:8065/eureka/
+       MANAGEMENT_ZIPKIN_TRACING_ENDPOINT: http://zipkin:9411/api/v2/spans
     
   rooms:
     image: huworms/microroom:latest
@@ -69,6 +84,7 @@ services:
        SPRING_PROFILES_ACTIVE: default
        SPRING_CONFIG_IMPORT: configserver:http://configserver:8085/
        EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:8065/eureka/
+       MANAGEMENT_ZIPKIN_TRACING_ENDPOINT: http://zipkin:9411/api/v2/spans
     
   reservations:
     image: huworms/reservation:latest
@@ -90,6 +106,32 @@ services:
        SPRING_PROFILES_ACTIVE: default
        SPRING_CONFIG_IMPORT: configserver:http://configserver:8085/
        EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:8065/eureka/
+       MANAGEMENT_ZIPKIN_TRACING_ENDPOINT: http://zipkin:9411/api/v2/spans
+       
+  gatewayserver:
+    image: huworms/gatewayserver:latest
+    mem_limit: 800m
+    ports:
+      - "8066:8066"
+    networks:
+      - hugo-network
+    depends_on:
+      - configserver
+      - eurekaserver
+      - hotels
+      - rooms
+      - reservations
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 50s
+        max_attempts: 3
+        window: 180s
+    environment:
+      SPRING_PROFILES_ACTIVE: default
+      SPRING_CONFIG_IMPORT: configserver:http://configserver:8085/
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:8065/eureka/
+      MANAGEMENT_ZIPKIN_TRACING_ENDPOINT: http://zipkin:9411/api/v2/spans
     
 networks:
   hugo-network:
