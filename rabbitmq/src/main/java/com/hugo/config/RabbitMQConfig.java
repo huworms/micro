@@ -7,9 +7,11 @@ import org.springframework.amqp.core.TopicExchange;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
 
 
 @Configuration
+@PropertySource("classpath:application.properties")
 public class RabbitMQConfig {
 	
 	@Value("${rabbitmq.queue.name}")
@@ -32,6 +34,7 @@ public class RabbitMQConfig {
 		return new TopicExchange(exchange);
 	}
 	
+	@Bean
 	public Binding binding() {
 		return BindingBuilder.bind(queue())
 				.to(exchange())
